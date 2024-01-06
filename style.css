@@ -17,3 +17,15 @@
     background-color: rgb(227, 179, 227);
     color: rgb(67, 14, 67);
 }
+
+.icon {
+    font-size: 3rem;
+}
+
+.border-blue {
+    border-bottom: 2px solid rgb(31, 31, 118);
+}
+
+.border-blue-footer {
+    border-top: 2px solid rgb(31, 31, 118);
+}
