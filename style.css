@@ -8,4 +8,12 @@
 
 .bg-lilac {
     background-color: rgb(220, 206, 250);
+    color:rgb(64, 31, 95);
+}
+
+.border-line {
+    border-bottom: 2px solid purple;
+    border-top: 2px solid purple;
+    background-color: rgb(227, 179, 227);
+    color: rgb(67, 14, 67);
 }
