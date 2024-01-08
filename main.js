@@ -1,39 +1,71 @@
 function getRoutes() {
     let url = new URL('http://exam-2023-1-api.std-900.ist.mospolytech.ru/api/routes?api_key=fcc6eb49-e455-41f2-b0d5-9b2155a9de0f');
     let xhr = new XMLHttpRequest();
+    let nameFilter = document.querySelector('.search-field').value;
     xhr.open('GET', url);
     xhr.responseType = 'json';
     xhr.onload = function () {
-        renderRoutes(this.response)
+        renderRoutes(this.response, nameFilter);
+        renderOptions(this.response);
     };
     xhr.send();
 }
 
-function renderRoutes(routes){
+function renderRoutes(routes, nameFilter){
     console.log(routes.length);
-    let requestHints = document.querySelector('.table-routes-body');
+    let routsTableBody = document.querySelector('.table-routes-body');
+    routsTableBody.innerHTML = '';
+    console.log(nameFilter)
     for (let i = 0; i < routes.length; i++) {
-        let tr = document.createElement('tr');
-        let td_name = document.createElement('td');
-        td_name.textContent = routes[i].name;
-        tr.appendChild(td_name);
-        console.log(routes[i].name)
-        let td_desc = document.createElement('td');
-        td_desc.textContent = routes[i].description;
-        tr.appendChild(td_desc);
-        console.log(routes[i].description)
-        let td_mainObj = document.createElement('td');
-        td_mainObj.textContent = routes[i].mainObject;
-        tr.appendChild(td_mainObj);
-        console.log(routes[i].mainObject)
-        let td_id = document.createElement('td');
-        td_id.innerHTML=routes[i].id;
-        console.log(routes[i].id)
-        tr.appendChild(td_id);
-        requestHints.appendChild(tr);
+        if (routes[i].name.includes(nameFilter)){
+            createRouteRow(routsTableBody, routes[i]);
+        }
+    }
 }
+
+function createRouteRow(routsTableBody, routeObject) {
+    let tr = document.createElement('tr');
+    createRouteCell(tr, routeObject.name);
+    createRouteCell(tr, routeObject.description);
+    createRouteCell(tr, routeObject.mainObject);
+    let td_id = document.createElement('td');
+    let btn_id = document.createElement('button');
+    btn_id.id = routeObject.id; 
+    btn_id.textContent = 'Выбрать';
+    td_id.append(btn_id);
+    tr.appendChild(td_id);
+    routsTableBody.appendChild(tr);
 }
+
+
+function createRouteCell(tr, cellContent) {
+    let td_name = document.createElement('td');
+    td_name.textContent = cellContent;
+    tr.appendChild(td_name);
+}
+
+function renderOptions(routes) {
+    let optionsArr = [...new Set(routes.map(route => {
+        return route.mainObject
+    }))]
+
+    optionsArr.forEach(optionElem => {
+        let option = document.createElement('option');
+        option.value = optionElem;
+        option.text = optionElem;
+        let selectElem = document.querySelector('.selectionArea')
+        selectElem.add(option)
+    })
+}
+
 
 window.onload = function () {
     getRoutes();
+    document.querySelector('.search-field').addEventListener('keypress', function (e) {
+        if (e.key == 'Enter') {
+            getRoutes();
+        }
+    });
+    document.querySelector('.search-field').oninput = getRoutes;
+
 }

@@ -29,3 +29,21 @@
 .border-blue-footer {
     border-top: 2px solid rgb(31, 31, 118);
 }
+
+.bg-light-violet {
+    background-color: rgb(200, 190, 210);
+}
+
+.table {
+    font-size: 0.75rem;
+}
+
+.hidden {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
