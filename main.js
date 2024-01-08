@@ -1,6 +1,9 @@
 let apiKey = new URLSearchParams({'api_key':'fcc6eb49-e455-41f2-b0d5-9b2155a9de0f'});
 let server = 'http://exam-2023-1-api.std-900.ist.mospolytech.ru/api/';
 
+let routeSelected_name;
+let routeSelected_id = -1;
+
 
 
 document.addEventListener('DOMContentLoaded', function(){
@@ -89,12 +92,35 @@ function renderRoutes(routes, nameFilter){
             console.log(id);   
             let rowSelect = document.getElementById(id);
             console.log(rowSelect);
+            console.log(rowSelect.children[0].textContent);
+            routeSelected_name = rowSelect.children[0].textContent;
             console.log(rowSelect.id);
             if (rowSelect.className != 'table-primary'){
                 rowSelect.className = 'table-primary'; 
                 getGuides(id);
                 let guidesTable = document.querySelector('table-guides-body');
                 guidesTable.innerHTML = '';
+                console.log(routeSelected_id);
+                if (routeSelected_id != -1){
+                    let previousRow = document.getElementById(routeSelected_id);
+                    console.log(previousRow);
+                    previousRow.className = '';
+                    if (routeSelected_id != rowSelect.id){
+                        routeSelected_id = rowSelect.id;
+                    }
+                    console.log(routeSelected_id);
+                } 
+                else {
+                    if (routeSelected_id != rowSelect.id){
+                        routeSelected_id = rowSelect.id;
+                    }
+                    console.log(routeSelected_id);
+                }
+            }
+            else{
+                let guidesTableBody = document.querySelector('#guides');
+                guidesTableBody.className = 'hidden';
+                rowSelect.className = ''; 
             }
     
         })
@@ -161,12 +187,12 @@ function getGuides(id) {
     xhr.open('GET', url);
     xhr.responseType = 'json';
     xhr.onload = function () {
-        console.log(this.response);
+        //console.log(this.response);
         renderGuides(this.response);
     };
     xhr.send();
     let routeNameH = document.querySelector('.route-name-area');
-    routeNameH.textContent = 'Доступные гиды по маршруту №';
+    routeNameH.textContent = 'Доступные гиды по маршруту '+ `"`+ routeSelected_name +`".`;
     let guidesArea = document.querySelector('#guides');
     guidesArea.className = 'not-hidden-section';
 
@@ -177,17 +203,19 @@ function renderGuides(guides) {
     guidesTableBody.innerHTML = '';
     var activeGuidesArr = [];
     for (let i = 0; i < guides.length; i++) {
-        console.log(guides[i]);
+        //console.log(guides[i]);
         createGuideRow(guidesTableBody, guides[i]);
         activeGuidesArr.push(guides[i]);
     }
 }
 
 function createGuideRow(guidesTableBody, guide){
-    var imageUrl = "../exam/images/avatar.png";
+    var imageUrl = "../exam/images/person-circle.svg";
     let tr = document.createElement('tr');
     let td_ph = document.createElement('td');
     td_ph.style.backgroundImage = `url(${imageUrl})`;
+    td_ph.style.backgroundRepeat = 'no-repeat';
+    td_ph.style.backgroundPosition = 'center';
     tr.appendChild(td_ph);
     createGuideCell(tr, guide.name);
     createGuideCell(tr, guide.language);
