@@ -20,7 +20,7 @@ function createGuideCell(tr, cellContent) {
 
 
 function createGuideRow(guidesTableBody, guide) {
-    var imageUrl = "../exam/images/person-circle.svg";
+    var imageUrl = "../images/person-circle.svg";
     let tr = document.createElement('tr');
     let td_ph = document.createElement('td');
     td_ph.style.backgroundImage = `url(${imageUrl})`;
