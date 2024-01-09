@@ -76,6 +76,71 @@ function createRouteRow(routsTableBody, routeObject) {
 }
 
 
+function renderOptions(routes) {
+    let routesArr = [...new Set(routes.map(route => {
+        return route.mainObject;
+    }))];
+    let selectElemNew = document.querySelector('.selectionArea');
+    selectElemNew.innerHTML = '';
+    let optionName = document.createElement('option');
+    optionName.selected;
+    optionName.disabled;
+    optionName.text = 'Основной объект';
+    selectElemNew.add(optionName);
+    let optionNone = document.createElement('option');
+    optionNone.value = 'none';
+    optionNone.text = 'Не выбрано';
+    selectElemNew.add(optionNone);
+    routesArr.forEach(optionElem => {
+        let option = document.createElement('option');
+        option.value = optionElem;
+        option.text = optionElem;
+        let selectElem = document.querySelector('.selectionArea');
+        selectElem.add(option);
+    });
+}
+
+function getGuides(id) {
+    try {
+        let url = new URL(server + `routes/${id}/guides?` + apiKey);
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+        xhr.responseType = 'json';
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                renderGuides(this.response);
+            } else {
+                let alertDiv = document.querySelector('#liveAlertPlaceholder');
+                alertDiv.className = 'alert alert-warning mb-0';
+                alertDiv.setAttribute('role', 'alert');
+                alertDiv.textContent = "Произошла ошибка при получении данных";
+                console.error("Произошла ошибка при получении данных:", xhr.status);
+                    
+            }
+        };
+        xhr.onerror = function () {
+            console.error("Произошла ошибка сети или другая ошибка.");
+            let alertDiv = document.querySelector('#liveAlertPlaceholder');
+            alertDiv.className = 'alert alert-warning mb-0';
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.textContent = "Произошла ошибка сети или другая ошибка.";
+        };
+        xhr.send();
+        let routeNameH = document.querySelector('.route-name-area');
+        routeNameH.textContent = 'Доступные гиды по маршруту ' + routeSelected_name + '.';
+        let guidesArea = document.querySelector('#guides');
+        guidesArea.className = 'not-hidden-section';
+    } catch (error) {
+        console.error("Произошла ошибка при отправке запроса:", error.message);
+        let alertDiv = document.querySelector('#liveAlertPlaceholder');
+        alertDiv.className = 'alert alert-warning mb-0';
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.textContent = "Произошла ошибка при отправке запроса";
+    
+    }
+}
+
+
 function renderRoutes(routes, nameFilter) {
     console.log(routes.length);
     let routsTableBody = document.querySelector('.table-routes-body');
@@ -123,31 +188,6 @@ function renderRoutes(routes, nameFilter) {
     });
 }
 
-
-function renderOptions(routes) {
-    let routesArr = [...new Set(routes.map(route => {
-        return route.mainObject;
-    }))];
-    let selectElemNew = document.querySelector('.selectionArea');
-    selectElemNew.innerHTML = '';
-    let optionName = document.createElement('option');
-    optionName.selected;
-    optionName.disabled;
-    optionName.text = 'Основной объект';
-    selectElemNew.add(optionName);
-    let optionNone = document.createElement('option');
-    optionNone.value = 'none';
-    optionNone.text = 'Не выбрано';
-    selectElemNew.add(optionNone);
-    routesArr.forEach(optionElem => {
-        let option = document.createElement('option');
-        option.value = optionElem;
-        option.text = optionElem;
-        let selectElem = document.querySelector('.selectionArea');
-        selectElem.add(option);
-    });
-}
-
 function getRoutes() {
     let url = new URL(server + "routes?" + apiKey);
     let xhr = new XMLHttpRequest();
@@ -165,48 +205,7 @@ function getRoutes() {
 
             console.error("Произошла ошибка при получении данных:", xhr.status);
         }
-    };
-
-    function getGuides(id) {
-        try {
-            let url = new URL(server + `routes/${id}/guides?` + apiKey);
-            let xhr = new XMLHttpRequest();
-            xhr.open('GET', url);
-            xhr.responseType = 'json';
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    renderGuides(this.response);
-                } else {
-                    let alertDiv = document.querySelector('#liveAlertPlaceholder');
-                    alertDiv.className = 'alert alert-warning mb-0';
-                    alertDiv.setAttribute('role', 'alert');
-                    alertDiv.textContent = "Произошла ошибка при получении данных";
-                    console.error("Произошла ошибка при получении данных:", xhr.status);
-                    
-                }
-            };
-            xhr.onerror = function () {
-                console.error("Произошла ошибка сети или другая ошибка.");
-                let alertDiv = document.querySelector('#liveAlertPlaceholder');
-                alertDiv.className = 'alert alert-warning mb-0';
-                alertDiv.setAttribute('role', 'alert');
-                alertDiv.textContent = "Произошла ошибка сети или другая ошибка.";
-            };
-            xhr.send();
-            let routeNameH = document.querySelector('.route-name-area');
-            routeNameH.textContent = 'Доступные гиды по маршруту ' + routeSelected_name + '.';
-            let guidesArea = document.querySelector('#guides');
-            guidesArea.className = 'not-hidden-section';
-        } catch (error) {
-            console.error("Произошла ошибка при отправке запроса:", error.message);
-            let alertDiv = document.querySelector('#liveAlertPlaceholder');
-            alertDiv.className = 'alert alert-warning mb-0';
-            alertDiv.setAttribute('role', 'alert');
-            alertDiv.textContent = "Произошла ошибка при отправке запроса";
-    
-        }
-    }
-    
+    };    
 
     xhr.onerror = function () {
         let alertDiv = document.querySelector('#liveAlertPlaceholder');
