@@ -21,7 +21,7 @@ function getRoutes() {
             renderRoutes(this.response, nameFilter);
         } else {
             let alertDiv = document.querySelector('#liveAlertPlaceholder');
-            alertDiv.className = 'alert alert-primary mb-0';
+            alertDiv.className = 'alert alert-warning mb-0';
             alertDiv.setAttribute('role', 'alert');
             alertDiv.textContent = "Произошла ошибка при получении данных"
 
@@ -31,7 +31,7 @@ function getRoutes() {
 
     xhr.onerror = function () {
         let alertDiv = document.querySelector('#liveAlertPlaceholder');
-        alertDiv.className = 'alert alert-primary mb-0';
+        alertDiv.className = 'alert alert-warning mb-0';
         alertDiv.setAttribute('role', 'alert');
         alertDiv.textContent = "Произошла ошибка сети или другая ошибка."
         console.error("Произошла ошибка сети или другая ошибка.");
@@ -41,6 +41,9 @@ function getRoutes() {
         xhr.send();
     } catch (error) {
         console.error("Произошла ошибка при отправке запроса:", error.message);
+        alertDiv.className = 'alert alert-warning mb-0';
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.textContent = "Произошла ошибка при отправке запроса."
     }
 }
 
@@ -90,29 +93,6 @@ function renderRoutes(routes, nameFilter) {
         });
     });
 }
-
-
-function parseOptions(routesArray){
-    let routes = [...new Set(routesArray.map(route => {
-        return route.mainObject
-    }))]
-    let point = routes.split('. ').length;
-    let dash = routes.split('- ').lenght;
-    let comma = routes.split(', ').lenght;
-    let newRoutes;
-
-    if (dash == Math.max(point, dash, comma)){
-        newRoutes = routes.split('- ');
-
-    } else if (point == Math.max(point, dash, comma)) {
-        newRoutes = routes.split('. ');
-
-    } else {
-        newRoutes = routes.split(', ');
-    }
-    renderOptions(newRoutes);
-}
-
 
 function createRouteRow(routsTableBody, routeObject) {
     let tr = document.createElement('tr');
@@ -175,7 +155,7 @@ function getGuides(id) {
                 renderGuides(this.response);
             } else {
                 let alertDiv = document.querySelector('#liveAlertPlaceholder');
-                alertDiv.className = 'alert alert-primary mb-0';
+                alertDiv.className = 'alert alert-warning mb-0';
                 alertDiv.setAttribute('role', 'alert');
                 alertDiv.textContent = "Произошла ошибка при получении данных"
                 console.error("Произошла ошибка при получении данных:", xhr.status);
@@ -185,7 +165,7 @@ function getGuides(id) {
         xhr.onerror = function () {
             console.error("Произошла ошибка сети или другая ошибка.");
             let alertDiv = document.querySelector('#liveAlertPlaceholder');
-            alertDiv.className = 'alert alert-primary mb-0';
+            alertDiv.className = 'alert alert-warning mb-0';
             alertDiv.setAttribute('role', 'alert');
             alertDiv.textContent = "Произошла ошибка сети или другая ошибка."
         };
@@ -197,7 +177,7 @@ function getGuides(id) {
     } catch (error) {
         console.error("Произошла ошибка при отправке запроса:", error.message);
         let alertDiv = document.querySelector('#liveAlertPlaceholder');
-        alertDiv.className = 'alert alert-primary mb-0';
+        alertDiv.className = 'alert alert-warning mb-0';
         alertDiv.setAttribute('role', 'alert');
         alertDiv.textContent = "Произошла ошибка при отправке запроса"
 
