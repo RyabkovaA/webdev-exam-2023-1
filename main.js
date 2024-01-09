@@ -3,7 +3,9 @@ let server = 'http://exam-2023-1-api.std-900.ist.mospolytech.ru/api/';
 
 let routeSelected_name;
 let routeSelected_id = -1;
-
+var previousSelectedButton = null;
+var selectedRouteId = null;
+var prevSelectedRow;
 
 
 document.addEventListener('DOMContentLoaded', function(){
@@ -63,70 +65,103 @@ function getRoutes() {
     let nameFilter = document.querySelector('.search-field').value;
     xhr.open('GET', url);
     xhr.responseType = 'json';
+    
     xhr.onload = function () {
-        renderRoutes(this.response, nameFilter)
+        if (xhr.status === 200) {
+            renderRoutes(this.response, nameFilter);
+        } else {
+            let alertDiv = document.querySelector('#liveAlertPlaceholder');
+            alertDiv.className = 'alert alert-primary mb-0';
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.textContent = "Произошла ошибка при получении данных"
+
+            console.error("Произошла ошибка при получении данных:", xhr.status);
+        }
     };
-    xhr.send();
+
+    xhr.onerror = function () {
+        let alertDiv = document.querySelector('#liveAlertPlaceholder');
+        alertDiv.className = 'alert alert-primary mb-0';
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.textContent = "Произошла ошибка сети или другая ошибка."
+        console.error("Произошла ошибка сети или другая ошибка.");
+    };
+
+    try {
+        xhr.send();
+    } catch (error) {
+        console.error("Произошла ошибка при отправке запроса:", error.message);
+    }
 }
 
-function renderRoutes(routes, nameFilter){
+function renderRoutes(routes, nameFilter) {
     console.log(routes.length);
     let routsTableBody = document.querySelector('.table-routes-body');
     routsTableBody.innerHTML = '';
-    console.log(nameFilter)
-    var activeRoutesArr = [];
+    console.log(nameFilter);
+
     for (let i = 0; i < routes.length; i++) {
         let routeNameLowerCase = routes[i].name.toLowerCase();
         let nameFilterLowerCase = nameFilter.toLowerCase();
-        if (routeNameLowerCase.includes(nameFilterLowerCase)){
+        if (routeNameLowerCase.includes(nameFilterLowerCase)) {
             createRouteRow(routsTableBody, routes[i]);
-            activeRoutesArr.push(routes[i]);
         }
     }
-    renderOptions(activeRoutesArr);
+
     var buttonsChoice = document.querySelectorAll('.btn-id');
     console.log(buttonsChoice);
-    [].forEach.call(buttonsChoice, function(item){
-        item.addEventListener('click', function(){
-            let id = this.id;
-            console.log(id);   
-            let rowSelect = document.getElementById(id);
+    
+    buttonsChoice.forEach(function (item) {
+        item.addEventListener('click', function () {
+            let rowSelect = this.parentNode.parentNode;
             console.log(rowSelect);
             console.log(rowSelect.children[0].textContent);
             routeSelected_name = rowSelect.children[0].textContent;
             console.log(rowSelect.id);
-            if (rowSelect.className != 'table-primary'){
-                rowSelect.className = 'table-primary'; 
-                getGuides(id);
-                let guidesTable = document.querySelector('table-guides-body');
-                guidesTable.innerHTML = '';
-                console.log(routeSelected_id);
-                if (routeSelected_id != -1){
-                    let previousRow = document.getElementById(routeSelected_id);
-                    console.log(previousRow);
-                    previousRow.className = '';
-                    if (routeSelected_id != rowSelect.id){
-                        routeSelected_id = rowSelect.id;
-                    }
-                    console.log(routeSelected_id);
-                } 
-                else {
-                    if (routeSelected_id != rowSelect.id){
-                        routeSelected_id = rowSelect.id;
-                    }
-                    console.log(routeSelected_id);
-                }
-            }
-            else{
+
+            if (rowSelect.id === selectedRouteId) {
+                selectedRouteId = null;
+                rowSelect.classList.remove('table-primary');
                 let guidesTableBody = document.querySelector('#guides');
                 guidesTableBody.className = 'hidden';
-                rowSelect.className = ''; 
+            } else {
+                if (selectedRouteId) {
+                    var previouslySelectedRoute = document.getElementById(selectedRouteId);
+                    if (previouslySelectedRoute) {
+                        previouslySelectedRoute.classList.remove('table-primary');
+                    }
+                }
+                selectedRouteId = rowSelect.id;
+                rowSelect.classList.add('table-primary');
+                getGuides(selectedRouteId);
+                let guidesTable = document.querySelector('table-guides-body');
+                guidesTable.innerHTML = '';
             }
-    
-        })
-    })
+        });
+    });
 }
 
+
+function parseOptions(routesArray){
+    let routes = [...new Set(routesArray.map(route => {
+        return route.mainObject
+    }))]
+    let point = routes.split('. ').length;
+    let dash = routes.split('- ').lenght;
+    let comma = routes.split(', ').lenght;
+    let newRoutes;
+
+    if (dash == Math.max(point, dash, comma)){
+        newRoutes = routes.split('- ');
+
+    } else if (point == Math.max(point, dash, comma)) {
+        newRoutes = routes.split('. ');
+
+    } else {
+        newRoutes = routes.split(', ');
+    }
+    renderOptions(newRoutes);
+}
 
 
 function createRouteRow(routsTableBody, routeObject) {
@@ -156,7 +191,7 @@ function createRouteCell(tr, cellContent) {
 }
 
 function renderOptions(routes) {
-    let optionsArr = [...new Set(routes.map(route => {
+    let routesArr = [...new Set(routes.map(route => {
         return route.mainObject
     }))]
     let selectElemNew = document.querySelector('.selectionArea')
@@ -170,7 +205,7 @@ function renderOptions(routes) {
     optionNone.value = 'none';
     optionNone.text = 'Не выбрано';
     selectElemNew.add(optionNone);
-    optionsArr.forEach(optionElem => {
+    routesArr.forEach(optionElem => {
         let option = document.createElement('option');
         option.value = optionElem;
         option.text = optionElem;
@@ -179,23 +214,44 @@ function renderOptions(routes) {
     })
 }
 
-
 function getGuides(id) {
-    let url = new URL(server + `routes/${id}/guides?`+ apiKey);
-    let xhr = new XMLHttpRequest();
-    //let nameFilter = document.querySelector('.search-field').value;
-    xhr.open('GET', url);
-    xhr.responseType = 'json';
-    xhr.onload = function () {
-        //console.log(this.response);
-        renderGuides(this.response);
-    };
-    xhr.send();
-    let routeNameH = document.querySelector('.route-name-area');
-    routeNameH.textContent = 'Доступные гиды по маршруту '+ `"`+ routeSelected_name +`".`;
-    let guidesArea = document.querySelector('#guides');
-    guidesArea.className = 'not-hidden-section';
+    try {
+        let url = new URL(server + `routes/${id}/guides?` + apiKey);
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+        xhr.responseType = 'json';
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                renderGuides(this.response);
+            } else {
+                let alertDiv = document.querySelector('#liveAlertPlaceholder');
+                alertDiv.className = 'alert alert-primary mb-0';
+                alertDiv.setAttribute('role', 'alert');
+                alertDiv.textContent = "Произошла ошибка при получении данных"
+                console.error("Произошла ошибка при получении данных:", xhr.status);
+                
+            }
+        };
+        xhr.onerror = function () {
+            console.error("Произошла ошибка сети или другая ошибка.");
+            let alertDiv = document.querySelector('#liveAlertPlaceholder');
+            alertDiv.className = 'alert alert-primary mb-0';
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.textContent = "Произошла ошибка сети или другая ошибка."
+        };
+        xhr.send();
+        let routeNameH = document.querySelector('.route-name-area');
+        routeNameH.textContent = 'Доступные гиды по маршруту ' + routeSelected_name + '.';
+        let guidesArea = document.querySelector('#guides');
+        guidesArea.className = 'not-hidden-section';
+    } catch (error) {
+        console.error("Произошла ошибка при отправке запроса:", error.message);
+        let alertDiv = document.querySelector('#liveAlertPlaceholder');
+        alertDiv.className = 'alert alert-primary mb-0';
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.textContent = "Произошла ошибка при отправке запроса"
 
+    }
 }
 
 function renderGuides(guides) {
@@ -203,7 +259,6 @@ function renderGuides(guides) {
     guidesTableBody.innerHTML = '';
     var activeGuidesArr = [];
     for (let i = 0; i < guides.length; i++) {
-        //console.log(guides[i]);
         createGuideRow(guidesTableBody, guides[i]);
         activeGuidesArr.push(guides[i]);
     }

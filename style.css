@@ -48,17 +48,12 @@
     width: 1px;
 }
 
-.highlighted-row {
-    background-color: rgb(220, 134, 134);
-    border: 1px solid red;
-}
-
-.user-image {
-    width: 60px;
-    background-image: url('../exam/images/logo.png');
-}
-
 .not-hidden-section {
     padding-inline: auto;
     background-color: rgb(200, 190, 210);
+}
+
+.active {
+    background-color: #007bff;
+    color: #fff;
 }
