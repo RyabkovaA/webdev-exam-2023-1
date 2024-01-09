@@ -6,58 +6,9 @@ let routeSelected_id = -1;
 var previousSelectedButton = null;
 var selectedRouteId = null;
 var prevSelectedRow;
+let currentPage = 1; 
+let routesPerPage = 10; 
 
-
-document.addEventListener('DOMContentLoaded', function(){
-    const content = document.querySelector('.table-responsive');
-    const itemsPerPage = 10;
-    console.log('domcontent loaded');
-    let currentPage = 0;
-    const items = Array.from(content.getElementsByTagName('tr')).slice(1);
-    createPageButtons();
-    showPage(currentPage);
-})
-
-
-function showPage(page) {
-    const startIndex = page * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    items.forEach((item, index) => {
-      item.classList.toggle('hidden', index < startIndex || index >= endIndex);
-    });
-    console.log('show page func');
-    updateActiveButtonStates();
-}
-
-function createPageButtons() {
-    console.log('buttonscreation')
-    const totalPages = Math.ceil(items.length / itemsPerPage);
-    const paginationContainer = document.createElement('div');
-    const paginationDiv = document.body.appendChild(paginationContainer);
-    paginationContainer.classList.add('pagination');
-    for (let i = 0; i < totalPages; i++) {
-        const pageButton = document.createElement('button');
-        pageButton.textContent = i + 1;
-        pageButton.addEventListener('click', () => {
-          currentPage = i;
-          showPage(currentPage);
-          updateActiveButtonStates();
-        });
-        content.appendChild(paginationContainer);
-        paginationDiv.appendChild(pageButton);
-    } 
-}  
-
-function updateActiveButtonStates() {
-    const pageButtons = document.querySelectorAll('.pagination button');
-    pageButtons.forEach((button, index) => {
-        if (index === currentPage) {
-            button.classList.add('active');
-        } else {
-            button.classList.remove('active');
-        }
-    });
-}
 
 function getRoutes() {
     let url = new URL(server + "routes?" + apiKey);
@@ -65,7 +16,6 @@ function getRoutes() {
     let nameFilter = document.querySelector('.search-field').value;
     xhr.open('GET', url);
     xhr.responseType = 'json';
-    
     xhr.onload = function () {
         if (xhr.status === 200) {
             renderRoutes(this.response, nameFilter);
